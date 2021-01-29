@@ -25,4 +25,4 @@ LIBXCRYPT_HASH=a98f65b8baffa2b5ba68ee53c10c0a328166ef4116bce3baece190c8ce01f375
 
 GIT_ROOT=2.26.2
 GIT_HASH=21b48d1e7e03d0b325967e31a30f4fa878e4fbb6dac6e997b5dc3f41f950a6d3
-GIT_DOWNLOAD_URL=https://github.com/git/git/archive
+GIT_DOWNLOAD_URL=https://oneflow-static.oss-cn-beijing.aliyuncs.com/deps/git
