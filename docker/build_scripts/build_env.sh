@@ -1,8 +1,8 @@
 # source me
 
-PYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python
+PYTHON_DOWNLOAD_URL=https://oneflow-static.oss-cn-beijing.aliyuncs.com/deps/python
 # of the form <maj>.<min>.<rev> or <maj>.<min>.<rev>rc<n>
-CPYTHON_VERSIONS="3.5.9 3.6.10 3.7.7 3.8.3 3.9.0b3"
+CPYTHON_VERSIONS="3.5.9 3.6.12 3.7.9 3.8.7 3.9.1"
 
 PATCHELF_VERSION=0.10
 PATCHELF_HASH=b3cb6bdedcef5607ce34a350cf0b182eb979f8f7bc31eae55a93a70a3f020d13
