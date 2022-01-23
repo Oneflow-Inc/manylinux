@@ -96,7 +96,7 @@ jobs:
             ${{ env.ACR_REGISTRY }}/${{ env.ACR_NAMESPACE }}/${{ env.DOCKER_REPO }}:${{ env.COMMIT_SHA }}
           cache-from: type=registry,ref=${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.DOCKER_REPO }}:latest
           cache-to: type=inline
-          context: docker
+          context: ./docker/
           build-args: |
             POLICY
             PLATFORM
