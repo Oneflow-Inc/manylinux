@@ -97,8 +97,8 @@ jobs:
           docker push ${COMMIT_TAG}
       - name: Push image to ACR
         run: |
-          LATEST_TAG="${{ env.ACR_REGISTRY }}/${{ env.ACR_NAMESPACE }}/${DOCKER_REPO}:latest"
-          COMMIT_TAG="${{ env.ACR_REGISTRY }}/${{ env.ACR_NAMESPACE }}/${DOCKER_REPO}:${{ env.COMMIT_SHA }}"
+          LATEST_TAG="${{ env.ACR_REGISTRY }}/${{ env.ACR_NAMESPACE }}/${{ env.DOCKER_REPO }}:latest"
+          COMMIT_TAG="${{ env.ACR_REGISTRY }}/${{ env.ACR_NAMESPACE }}/${{ env.DOCKER_REPO }}:${{ env.COMMIT_SHA }}"
           docker tag ${{ env.TEST_TAG}} ${LATEST_TAG}
           docker tag ${{ env.TEST_TAG}} ${COMMIT_TAG}
           docker push ${LATEST_TAG}
