@@ -76,12 +76,12 @@ export DEVTOOLSET_ROOTPATH
 export PREPEND_PATH
 export LD_LIBRARY_PATH_ARG
 
-# For strange reasons, 'oneflowinc' will be redacted in github action
-# for instance, ***/manylinux2014_x86_64_cuda11.2:342da77c5171438063a9d1a451299d8520065802
 BUILD_ARGS_COMMON="
 	--build-arg POLICY --build-arg PLATFORM --build-arg BASEIMAGE
 	--build-arg DEVTOOLSET_ROOTPATH --build-arg PREPEND_PATH --build-arg LD_LIBRARY_PATH_ARG
-	--rm -t oneflowinc/${TAG} -t ${ACR_REGISTRY}/${ACR_NAMESPACE}/${TAG}
+	--rm
+	-t ${DOCKER_HUB_NAMESPACE}/${TAG}
+	-t ${ACR_REGISTRY}/${ACR_NAMESPACE}/${TAG}
 	-f docker/Dockerfile docker/
 "
 
@@ -107,13 +107,13 @@ elif [ "${MANYLINUX_BUILD_FRONTEND}" == "buildkit" ]; then
 		--export-cache type=local,dest=$(pwd)/.buildx-cache-staging-${POLICY}_${PLATFORM} \
 		--opt build-arg:POLICY=${POLICY} --opt build-arg:PLATFORM=${PLATFORM} --opt build-arg:BASEIMAGE=${BASEIMAGE} \
 		--opt "build-arg:DEVTOOLSET_ROOTPATH=${DEVTOOLSET_ROOTPATH}" --opt "build-arg:PREPEND_PATH=${PREPEND_PATH}" --opt "build-arg:LD_LIBRARY_PATH_ARG=${LD_LIBRARY_PATH_ARG}" \
-		--output type=docker,name=quay.io/pypa/${POLICY}_${PLATFORM}:${COMMIT_SHA} | docker load
+		--output type=docker,name=${DOCKER_HUB_NAMESPACE}/${TAG} | docker load
 else
 	echo "Unsupported build frontend: '${MANYLINUX_BUILD_FRONTEND}'"
 	exit 1
 fi
 
-docker run --rm -v $(pwd)/tests:/tests:ro oneflowinc/${TAG} /tests/run_tests.sh
+docker run --rm -v $(pwd)/tests:/tests:ro ${DOCKER_HUB_NAMESPACE}/${TAG} /tests/run_tests.sh
 
 if [ "${MANYLINUX_BUILD_FRONTEND}" != "docker" ]; then
 	if [ -d $(pwd)/.buildx-cache-${POLICY}_${PLATFORM} ]; then
