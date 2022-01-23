@@ -21,8 +21,9 @@ concurrency:
 
 env:
   REGION_ID: cn-beijing
-  REGISTRY: registry.cn-beijing.aliyuncs.com
-  NAMESPACE: oneflow
+  ACR_REGISTRY: registry.cn-beijing.aliyuncs.com
+  ACR_NAMESPACE: oneflow
+  DOCKER_HUB_NAMESPACE: oneflowinc
 
 jobs:
   build_manylinux:
@@ -42,8 +43,7 @@ jobs:
       POLICY: ${{ matrix.policy }}
       PLATFORM: ${{ matrix.platform }}
       COMMIT_SHA: ${{ github.sha }}
-      DOCKERHUB_TAG: "oneflowinc/${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}:${{ github.sha }}"
-      ACR_TAG: "registry.cn-beijing.aliyuncs.com/oneflow/${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}:${{ github.sha }}"
+      TAG: "${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}:${{ github.sha }}"
 
     steps:
       - name: Checkout
@@ -88,7 +88,7 @@ jobs:
 
       - name: Push image to DockerHub
         run: |
-          docker push "${{ env.DOCKERHUB_TAG }}"
+          docker push ${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.TAG }}
       - name: Push image to ACR
         run: |
-          docker push "${{ env.ACR_TAG }}"
+          docker push ${{ env.ACR_REGISTRY }}/${{ env.ACR_NAMESPACE }}/${{ env.TAG }}
