@@ -45,6 +45,7 @@ jobs:
       COMMIT_SHA: ${{ github.sha }}
       DOCKER_REPO: "${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}"
       TEST_TAG: ${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}:${{ github.sha }}
+      CUDA_BASE_IMAGE: ${{ matrix.CUDA_BASE_IMAGE }}
 
     steps:
       - name: Checkout
