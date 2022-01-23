@@ -44,6 +44,7 @@ jobs:
       PLATFORM: ${{ matrix.platform }}
       COMMIT_SHA: ${{ github.sha }}
       DOCKER_REPO: "${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}"
+      TEST_TAG: ${{ matrix.DOCKER_HUB_NAMESPACE }}/${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}:${COMMIT_SHA}
 
     steps:
       - name: Checkout
@@ -88,8 +89,17 @@ jobs:
 
       - name: Push image to DockerHub
         run: |
-          docker push ${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.DOCKER_REPO }}:${{ github.sha }}
-          docker push ${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.DOCKER_REPO }}:latest
+          LATEST_TAG="${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.DOCKER_REPO }}:latest"
+          COMMIT_TAG="${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.DOCKER_REPO }}:${{ env.COMMIT_SHA }}"
+          docker tag ${{ env.TEST_TAG}} ${LATEST_TAG}
+          docker tag ${{ env.TEST_TAG}} ${COMMIT_TAG}
+          docker push ${LATEST_TAG}
+          docker push ${COMMIT_TAG}
       - name: Push image to ACR
         run: |
-          docker push ${{ env.ACR_REGISTRY }}/${{ env.ACR_NAMESPACE }}/${{ env.TAG }}
+          LATEST_TAG="${{ env.ACR_REGISTRY }}/${{ env.ACR_NAMESPACE }}/${DOCKER_REPO}:latest"
+          COMMIT_TAG="${{ env.ACR_REGISTRY }}/${{ env.ACR_NAMESPACE }}/${DOCKER_REPO}:${{ env.COMMIT_SHA }}"
+          docker tag ${{ env.TEST_TAG}} ${LATEST_TAG}
+          docker tag ${{ env.TEST_TAG}} ${COMMIT_TAG}
+          docker push ${LATEST_TAG}
+          docker push ${COMMIT_TAG}

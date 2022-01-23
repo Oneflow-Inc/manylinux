@@ -80,10 +80,7 @@ BUILD_ARGS_COMMON="
 	--build-arg POLICY --build-arg PLATFORM --build-arg BASEIMAGE
 	--build-arg DEVTOOLSET_ROOTPATH --build-arg PREPEND_PATH --build-arg LD_LIBRARY_PATH_ARG
 	--rm
-	-t ${ACR_REGISTRY}/${ACR_NAMESPACE}/${DOCKER_REPO}:latest
-	-t ${ACR_REGISTRY}/${ACR_NAMESPACE}/${DOCKER_REPO}:${COMMIT_SHA}
-	-t ${DOCKER_HUB_NAMESPACE}/${DOCKER_REPO}:latest
-	-t ${DOCKER_HUB_NAMESPACE}/${DOCKER_REPO}:${COMMIT_SHA}
+	-t ${TEST_TAG}
 	-f docker/Dockerfile docker/
 "
 
@@ -117,7 +114,7 @@ else
 	exit 1
 fi
 
-docker run --rm -v $(pwd)/tests:/tests:ro ${DOCKER_HUB_NAMESPACE}/${DOCKER_REPO}:${COMMIT_SHA} /tests/run_tests.sh
+docker run --rm -v $(pwd)/tests:/tests:ro ${TEST_TAG} /tests/run_tests.sh
 
 if [ "${MANYLINUX_BUILD_FRONTEND}" != "docker" ]; then
 	if [ -d $(pwd)/.buildx-cache-${POLICY}_${PLATFORM} ]; then
