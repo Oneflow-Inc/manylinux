@@ -22,53 +22,53 @@ ENV PATH=${PREPEND_PATH}${PATH}
 ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
 # first copy the fixup mirrors script, keep the script around
-COPY build_scripts/fixup-mirrors.sh /usr/local/sbin/fixup-mirrors
+# COPY build_scripts/fixup-mirrors.sh /usr/local/sbin/fixup-mirrors
 
-# setup entrypoint, this will wrap commands with `linux32` with i686 images
-COPY build_scripts/install-entrypoint.sh \
-    build_scripts/update-system-packages.sh \
-    build_scripts/build_utils.sh \
-    /build_scripts/
+# # setup entrypoint, this will wrap commands with `linux32` with i686 images
+# COPY build_scripts/install-entrypoint.sh \
+#     build_scripts/update-system-packages.sh \
+#     build_scripts/build_utils.sh \
+#     /build_scripts/
 
-RUN /build_scripts/install-entrypoint.sh && rm -rf /build_scripts
-COPY manylinux-entrypoint /usr/local/bin/manylinux-entrypoint
-ENTRYPOINT ["manylinux-entrypoint"]
+# RUN /build_scripts/install-entrypoint.sh && rm -rf /build_scripts
+# COPY manylinux-entrypoint /usr/local/bin/manylinux-entrypoint
+# ENTRYPOINT ["manylinux-entrypoint"]
 
-COPY build_scripts/install-runtime-packages.sh \
-    build_scripts/update-system-packages.sh \
-    build_scripts/build_utils.sh \
-    /build_scripts/
-RUN manylinux-entrypoint /build_scripts/install-runtime-packages.sh && rm -rf /build_scripts/
+# COPY build_scripts/install-runtime-packages.sh \
+#     build_scripts/update-system-packages.sh \
+#     build_scripts/build_utils.sh \
+#     /build_scripts/
+# RUN manylinux-entrypoint /build_scripts/install-runtime-packages.sh && rm -rf /build_scripts/
 
-COPY build_scripts/build_utils.sh /build_scripts/
+# COPY build_scripts/build_utils.sh /build_scripts/
 
-COPY build_scripts/install-autoconf.sh /build_scripts/
-RUN export AUTOCONF_ROOT=autoconf-2.71 && \
-    export AUTOCONF_HASH=431075ad0bf529ef13cb41e9042c542381103e80015686222b8a9d4abef42a1c && \
-    export AUTOCONF_DOWNLOAD_URL=http://ftp.gnu.org/gnu/autoconf && \
-    manylinux-entrypoint /build_scripts/install-autoconf.sh
+# COPY build_scripts/install-autoconf.sh /build_scripts/
+# RUN export AUTOCONF_ROOT=autoconf-2.71 && \
+#     export AUTOCONF_HASH=431075ad0bf529ef13cb41e9042c542381103e80015686222b8a9d4abef42a1c && \
+#     export AUTOCONF_DOWNLOAD_URL=http://ftp.gnu.org/gnu/autoconf && \
+#     manylinux-entrypoint /build_scripts/install-autoconf.sh
 
-COPY build_scripts/install-automake.sh /build_scripts/
-RUN export AUTOMAKE_ROOT=automake-1.16.5 && \
-    export AUTOMAKE_HASH=07bd24ad08a64bc17250ce09ec56e921d6343903943e99ccf63bbf0705e34605 && \
-    export AUTOMAKE_DOWNLOAD_URL=http://ftp.gnu.org/gnu/automake && \
-    manylinux-entrypoint /build_scripts/install-automake.sh
+# COPY build_scripts/install-automake.sh /build_scripts/
+# RUN export AUTOMAKE_ROOT=automake-1.16.5 && \
+#     export AUTOMAKE_HASH=07bd24ad08a64bc17250ce09ec56e921d6343903943e99ccf63bbf0705e34605 && \
+#     export AUTOMAKE_DOWNLOAD_URL=http://ftp.gnu.org/gnu/automake && \
+#     manylinux-entrypoint /build_scripts/install-automake.sh
 
-COPY build_scripts/install-libtool.sh /build_scripts/
-RUN export LIBTOOL_ROOT=libtool-2.4.6 && \
-    export LIBTOOL_HASH=e3bd4d5d3d025a36c21dd6af7ea818a2afcd4dfc1ea5a17b39d7854bcd0c06e3 && \
-    export LIBTOOL_DOWNLOAD_URL=http://ftp.gnu.org/gnu/libtool && \
-    manylinux-entrypoint /build_scripts/install-libtool.sh
+# COPY build_scripts/install-libtool.sh /build_scripts/
+# RUN export LIBTOOL_ROOT=libtool-2.4.6 && \
+#     export LIBTOOL_HASH=e3bd4d5d3d025a36c21dd6af7ea818a2afcd4dfc1ea5a17b39d7854bcd0c06e3 && \
+#     export LIBTOOL_DOWNLOAD_URL=http://ftp.gnu.org/gnu/libtool && \
+#     manylinux-entrypoint /build_scripts/install-libtool.sh
 
-COPY build_scripts/install-libxcrypt.sh /build_scripts/
-RUN export LIBXCRYPT_VERSION=4.4.27 && \
-    export LIBXCRYPT_HASH=e4ff47b7fa5370fa08e27258f8a0de5cb7e9b09c297ec7ab56a8a82e229a1c84 && \
-    export LIBXCRYPT_DOWNLOAD_URL=https://github.com/besser82/libxcrypt/archive && \
-    export PERL_ROOT=perl-5.34.0 && \
-    export PERL_HASH=551efc818b968b05216024fb0b727ef2ad4c100f8cb6b43fab615fa78ae5be9a && \
-    export PERL_DOWNLOAD_URL=https://www.cpan.org/src/5.0 && \
-    manylinux-entrypoint /build_scripts/install-libxcrypt.sh
-
+# COPY build_scripts/install-libxcrypt.sh /build_scripts/
+# RUN export LIBXCRYPT_VERSION=4.4.27 && \
+#     export LIBXCRYPT_HASH=e4ff47b7fa5370fa08e27258f8a0de5cb7e9b09c297ec7ab56a8a82e229a1c84 && \
+#     export LIBXCRYPT_DOWNLOAD_URL=https://github.com/besser82/libxcrypt/archive && \
+#     export PERL_ROOT=perl-5.34.0 && \
+#     export PERL_HASH=551efc818b968b05216024fb0b727ef2ad4c100f8cb6b43fab615fa78ae5be9a && \
+#     export PERL_DOWNLOAD_URL=https://www.cpan.org/src/5.0 && \
+#     manylinux-entrypoint /build_scripts/install-libxcrypt.sh
+RUN ls
 FROM runtime_base AS build_base
 COPY build_scripts/install-build-packages.sh /build_scripts/
 RUN manylinux-entrypoint /build_scripts/install-build-packages.sh
@@ -150,22 +150,23 @@ RUN manylinux-entrypoint /build_scripts/finalize-python.sh
 
 
 FROM runtime_base
-COPY --from=build_git /manylinux-rootfs /
-COPY --from=build_swig /manylinux-rootfs /
-COPY --from=build_cpython /manylinux-rootfs /
-COPY --from=all_python /opt/_internal /opt/_internal/
-COPY build_scripts/finalize.sh \
-    build_scripts/update-system-packages.sh \
-    build_scripts/python-tag-abi-tag.py \
-    build_scripts/requirements3.6.txt \
-    build_scripts/requirements3.7.txt \
-    build_scripts/requirements3.8.txt \
-    build_scripts/requirements3.9.txt \
-    build_scripts/requirements3.10.txt \
-    build_scripts/requirements-base-tools.txt \
-    /build_scripts/
-COPY build_scripts/requirements-tools/* /build_scripts/requirements-tools/
-RUN manylinux-entrypoint /build_scripts/finalize.sh && rm -rf /build_scripts
+# COPY --from=build_git /manylinux-rootfs /
+# COPY --from=build_swig /manylinux-rootfs /
+# COPY --from=build_cpython /manylinux-rootfs /
+# COPY --from=all_python /opt/_internal /opt/_internal/
+# COPY build_scripts/finalize.sh \
+#     build_scripts/update-system-packages.sh \
+#     build_scripts/python-tag-abi-tag.py \
+#     build_scripts/requirements3.6.txt \
+#     build_scripts/requirements3.7.txt \
+#     build_scripts/requirements3.8.txt \
+#     build_scripts/requirements3.9.txt \
+#     build_scripts/requirements3.10.txt \
+#     build_scripts/requirements-base-tools.txt \
+#     /build_scripts/
+# COPY build_scripts/requirements-tools/* /build_scripts/requirements-tools/
+# RUN manylinux-entrypoint /build_scripts/finalize.sh && rm -rf /build_scripts
+RUN ls
 
 ENV SSL_CERT_FILE=/opt/_internal/certs.pem
 
