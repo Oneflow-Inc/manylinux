@@ -27,7 +27,7 @@ env:
 
 jobs:
   build_manylinux:
-    name: ${{ matrix.policy }}_${{ matrix.platform }}
+    name: ${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
