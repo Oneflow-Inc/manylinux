@@ -79,8 +79,9 @@ export LD_LIBRARY_PATH_ARG
 BUILD_ARGS_COMMON="
 	--build-arg POLICY --build-arg PLATFORM --build-arg BASEIMAGE
 	--build-arg DEVTOOLSET_ROOTPATH --build-arg PREPEND_PATH --build-arg LD_LIBRARY_PATH_ARG
-	--rm -t ${DOCKERHUB_TAG}
-	--rm -t ${ACR_TAG}
+	--rm
+	-t ${DOCKERHUB_TAG}
+	-t ${ACR_TAG}
 	-f docker/Dockerfile docker/
 "
 
