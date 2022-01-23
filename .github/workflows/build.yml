@@ -43,7 +43,7 @@ jobs:
       POLICY: ${{ matrix.policy }}
       PLATFORM: ${{ matrix.platform }}
       COMMIT_SHA: ${{ github.sha }}
-      DOCKER_REPO: "${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}
+      DOCKER_REPO: "${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}"
 
     steps:
       - name: Checkout
