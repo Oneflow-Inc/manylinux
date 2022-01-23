@@ -9,11 +9,11 @@ on:
       - ".github/workflows/build.yml"
       - "docker/**"
       - "*.sh"
-  pull_request:
-    paths:
-      - ".github/workflows/build.yml"
-      - "docker/**"
-      - "build.sh"
+  # pull_request:
+  #   paths:
+  #     - ".github/workflows/build.yml"
+  #     - "docker/**"
+  #     - "build.sh"
 
 concurrency:
   group: test-${{ github.ref }}
