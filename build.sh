@@ -80,8 +80,10 @@ BUILD_ARGS_COMMON="
 	--build-arg POLICY --build-arg PLATFORM --build-arg BASEIMAGE
 	--build-arg DEVTOOLSET_ROOTPATH --build-arg PREPEND_PATH --build-arg LD_LIBRARY_PATH_ARG
 	--rm
-	-t ${DOCKER_HUB_NAMESPACE}/${TAG}
-	-t ${ACR_REGISTRY}/${ACR_NAMESPACE}/${TAG}
+	-t ${DOCKER_HUB_NAMESPACE}/${DOCKER_REPO}:${COMMIT_SHA}
+	-t ${DOCKER_HUB_NAMESPACE}/${DOCKER_REPO}:latest
+	-t ${ACR_REGISTRY}/${ACR_NAMESPACE}/${DOCKER_REPO}:${COMMIT_SHA}
+	-t ${ACR_REGISTRY}/${ACR_NAMESPACE}/${DOCKER_REPO}:latest
 	-f docker/Dockerfile docker/
 "
 
@@ -95,10 +97,12 @@ if [ "${MANYLINUX_BUILD_FRONTEND}" == "docker" ]; then
 elif [ "${MANYLINUX_BUILD_FRONTEND}" == "docker-buildx" ]; then
 	docker buildx build \
 		--load \
-		--cache-from=type=local,src=$(pwd)/.buildx-cache-${POLICY}_${PLATFORM} \
-		--cache-to=type=local,dest=$(pwd)/.buildx-cache-staging-${POLICY}_${PLATFORM} \
+		--cache-from=type=type=registry,ref=${DOCKER_HUB_NAMESPACE}/${DOCKER_REPO}:latest \
+		--cache-to=type=inline \
 		${BUILD_ARGS_COMMON}
 elif [ "${MANYLINUX_BUILD_FRONTEND}" == "buildkit" ]; then
+	echo "Unsupported build frontend: buildkit"
+	exit 1
 	buildctl build \
 		--frontend=dockerfile.v0 \
 		--local context=./docker/ \
@@ -107,13 +111,13 @@ elif [ "${MANYLINUX_BUILD_FRONTEND}" == "buildkit" ]; then
 		--export-cache type=local,dest=$(pwd)/.buildx-cache-staging-${POLICY}_${PLATFORM} \
 		--opt build-arg:POLICY=${POLICY} --opt build-arg:PLATFORM=${PLATFORM} --opt build-arg:BASEIMAGE=${BASEIMAGE} \
 		--opt "build-arg:DEVTOOLSET_ROOTPATH=${DEVTOOLSET_ROOTPATH}" --opt "build-arg:PREPEND_PATH=${PREPEND_PATH}" --opt "build-arg:LD_LIBRARY_PATH_ARG=${LD_LIBRARY_PATH_ARG}" \
-		--output type=docker,name=${DOCKER_HUB_NAMESPACE}/${TAG} | docker load
+		--output type=docker,name=${DOCKER_HUB_NAMESPACE}/${DOCKER_REPO}:latest | docker load
 else
 	echo "Unsupported build frontend: '${MANYLINUX_BUILD_FRONTEND}'"
 	exit 1
 fi
 
-docker run --rm -v $(pwd)/tests:/tests:ro ${DOCKER_HUB_NAMESPACE}/${TAG} /tests/run_tests.sh
+docker run --rm -v $(pwd)/tests:/tests:ro ${DOCKER_HUB_NAMESPACE}/${DOCKER_REPO}:latest /tests/run_tests.sh
 
 if [ "${MANYLINUX_BUILD_FRONTEND}" != "docker" ]; then
 	if [ -d $(pwd)/.buildx-cache-${POLICY}_${PLATFORM} ]; then

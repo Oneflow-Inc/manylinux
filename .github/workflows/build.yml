@@ -43,7 +43,7 @@ jobs:
       POLICY: ${{ matrix.policy }}
       PLATFORM: ${{ matrix.platform }}
       COMMIT_SHA: ${{ github.sha }}
-      TAG: "${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}:${{ github.sha }}"
+      DOCKER_REPO: "${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}
 
     steps:
       - name: Checkout
@@ -88,7 +88,8 @@ jobs:
 
       - name: Push image to DockerHub
         run: |
-          docker push ${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.TAG }}
+          docker push ${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.DOCKER_REPO }}:${{ github.sha }}
+          docker push ${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.DOCKER_REPO }}:latest
       - name: Push image to ACR
         run: |
           docker push ${{ env.ACR_REGISTRY }}/${{ env.ACR_NAMESPACE }}/${{ env.TAG }}
