@@ -81,9 +81,7 @@ export LD_LIBRARY_PATH_ARG
 BUILD_ARGS_COMMON="
 	--build-arg POLICY --build-arg PLATFORM --build-arg BASEIMAGE
 	--build-arg DEVTOOLSET_ROOTPATH --build-arg PREPEND_PATH --build-arg LD_LIBRARY_PATH_ARG
-	--rm
-	-t oneflowinc/${TAG}
-	-t ${ACR_REGISTRY}/${ACR_NAMESPACE}/${TAG}
+	--rm -t oneflowinc/${TAG} -t ${ACR_REGISTRY}/${ACR_NAMESPACE}/${TAG}
 	-f docker/Dockerfile docker/
 "
 
