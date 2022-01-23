@@ -48,7 +48,7 @@ elif [ "${POLICY}" == "manylinux2014" ]; then
 	if [ "${PLATFORM}" == "s390x" ]; then
 		BASEIMAGE="s390x/clefos:7"
 	else
-		BASEIMAGE="${MULTIARCH_PREFIX}centos:7"
+		BASEIMAGE="${CUDA_BASE_IMAGE}"
 	fi
 	DEVTOOLSET_ROOTPATH="/opt/rh/devtoolset-10/root"
 	PREPEND_PATH="${DEVTOOLSET_ROOTPATH}/usr/bin:"
@@ -79,7 +79,8 @@ export LD_LIBRARY_PATH_ARG
 BUILD_ARGS_COMMON="
 	--build-arg POLICY --build-arg PLATFORM --build-arg BASEIMAGE
 	--build-arg DEVTOOLSET_ROOTPATH --build-arg PREPEND_PATH --build-arg LD_LIBRARY_PATH_ARG
-	--rm -t quay.io/pypa/${POLICY}_${PLATFORM}:${COMMIT_SHA}
+	--rm -t ${DOCKERHUB_TAG}
+	--rm -t ${ACR_TAG}
 	-f docker/Dockerfile docker/
 "
 

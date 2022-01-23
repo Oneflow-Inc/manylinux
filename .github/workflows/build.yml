@@ -1,6 +1,7 @@
 name: Build
 
 on:
+  workflow_dispatch:
   push:
     branches-ignore:
       - "update-dependencies-pr"
@@ -18,6 +19,11 @@ concurrency:
   group: test-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  REGION_ID: cn-beijing
+  REGISTRY: registry.cn-beijing.aliyuncs.com
+  NAMESPACE: oneflow
+
 jobs:
   build_manylinux:
     name: ${{ matrix.policy }}_${{ matrix.platform }}
@@ -25,22 +31,35 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        policy: ["manylinux2014", "manylinux_2_24", "musllinux_1_1"]
-        platform: ["i686", "x86_64", "ppc64le"]
+        tag-prefix: ["cuda11.2"]
         include:
-          - policy: "manylinux2010"
-            platform: "i686"
-          - policy: "manylinux2010"
-            platform: "x86_64"
+          - tag-prefix: "cuda11.2"
+          - policy: "manylinux2014"
+          - platform: "x86_64"
+          - CUDA_BASE_IMAGE: "nvidia/cuda:11.2.2-cudnn8-devel-centos7"
 
     env:
       POLICY: ${{ matrix.policy }}
       PLATFORM: ${{ matrix.platform }}
       COMMIT_SHA: ${{ github.sha }}
+      DOCKERHUB_TAG: oneflowinc/${{ matrix.policy }}_${{ matrix.platform }}:${{ github.sha }}
+      ACR_TAG: registry.cn-beijing.aliyuncs.com/oneflow/${{ matrix.policy }}_${{ matrix.platform }}:${{ github.sha }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      # 1.1 Login to ACR
+      - name: Login to ACR with the AccessKey pair
+        uses: aliyun/acr-login@v1
+        with:
+          login-server: https://registry.${{env.REGION_ID}}.aliyuncs.com
+          username: "${{ secrets.ACR_USERNAME }}"
+          password: "${{ secrets.ACR_PASSWORD }}"
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up emulation
         if: matrix.platform == 'ppc64le'
@@ -50,7 +69,7 @@ jobs:
 
       # - name: Set BuildKit for ppc64le
       #   if: matrix.platform == 'ppc64le'
-      #   run: echo 'MANYLINUX_BUILD_FRONTEND=buildkit' >> $GITHUB_ENV 
+      #   run: echo 'MANYLINUX_BUILD_FRONTEND=buildkit' >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -63,11 +82,13 @@ jobs:
           restore-keys: buildx-cache-${{ matrix.policy }}-${{ matrix.platform }}-
 
       - name: Build
+        env:
+          CUDA_BASE_IMAGE: ${{ matrix.CUDA_BASE_IMAGE }}
         run: ./build.sh
 
-      - name: Deploy
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'pypa/manylinux'
-        run: ./deploy.sh
-        env:
-          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
-          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      - name: Push image to DockerHub
+        run: |
+          docker push "${{ env.DOCKERHUB_TAG }}"
+      - name: Push image to ACR
+        run: |
+          docker push "${{ env.ACR_TAG }}"
