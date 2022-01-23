@@ -78,8 +78,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .buildx-cache-${{ matrix.policy }}_${{ matrix.platform }}/*
-          key: buildx-cache-${{ matrix.policy }}-${{ matrix.platform }}-${{ hashFiles('docker/**') }}
-          restore-keys: buildx-cache-${{ matrix.policy }}-${{ matrix.platform }}-
+          key: buildx-cache-${{ matrix.policy }}-${{ matrix.platform }}-${{ matrix.tag-suffix }}-${{ hashFiles('docker/**') }}
+          restore-keys: buildx-cache-${{ matrix.policy }}-${{ matrix.platform }}-${{ matrix.tag-suffix }}
 
       - name: Build
         env:
