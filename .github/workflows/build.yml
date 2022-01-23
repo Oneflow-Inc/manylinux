@@ -31,9 +31,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tag-prefix: ["cuda11.2"]
+        tag-suffix: ["cuda11.2"]
         include:
-          - tag-prefix: "cuda11.2"
+          - tag-suffix: "cuda11.2"
           - policy: "manylinux2014"
           - platform: "x86_64"
           - CUDA_BASE_IMAGE: "nvidia/cuda:11.2.2-cudnn8-devel-centos7"
@@ -42,8 +42,8 @@ jobs:
       POLICY: ${{ matrix.policy }}
       PLATFORM: ${{ matrix.platform }}
       COMMIT_SHA: ${{ github.sha }}
-      DOCKERHUB_TAG: oneflowinc/${{ matrix.policy }}_${{ matrix.platform }}:${{ github.sha }}
-      ACR_TAG: registry.cn-beijing.aliyuncs.com/oneflow/${{ matrix.policy }}_${{ matrix.platform }}:${{ github.sha }}
+      DOCKERHUB_TAG: oneflowinc/${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}:${{ github.sha }}
+      ACR_TAG: registry.cn-beijing.aliyuncs.com/oneflow/${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}:${{ github.sha }}
 
     steps:
       - name: Checkout

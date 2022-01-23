@@ -113,7 +113,7 @@ else
 	exit 1
 fi
 
-docker run --rm -v $(pwd)/tests:/tests:ro quay.io/pypa/${POLICY}_${PLATFORM}:${COMMIT_SHA} /tests/run_tests.sh
+docker run --rm -v $(pwd)/tests:/tests:ro ${DOCKERHUB_TAG} /tests/run_tests.sh
 
 if [ "${MANYLINUX_BUILD_FRONTEND}" != "docker" ]; then
 	if [ -d $(pwd)/.buildx-cache-${POLICY}_${PLATFORM} ]; then
