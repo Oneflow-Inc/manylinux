@@ -92,33 +92,11 @@ fi
 if [ "${MANYLINUX_BUILD_FRONTEND}" == "docker" ]; then
 	docker build ${BUILD_ARGS_COMMON}
 elif [ "${MANYLINUX_BUILD_FRONTEND}" == "docker-buildx" ]; then
-	docker buildx build \
-		--load \
-		--cache-from=type=type=registry,ref=${DOCKER_HUB_NAMESPACE}/${DOCKER_REPO}:latest \
-		--cache-to=type=inline \
-		${BUILD_ARGS_COMMON}
+	env
 elif [ "${MANYLINUX_BUILD_FRONTEND}" == "buildkit" ]; then
 	echo "Unsupported build frontend: buildkit"
 	exit 1
-	buildctl build \
-		--frontend=dockerfile.v0 \
-		--local context=./docker/ \
-		--local dockerfile=./docker/ \
-		--import-cache type=local,src=$(pwd)/.buildx-cache-${POLICY}_${PLATFORM} \
-		--export-cache type=local,dest=$(pwd)/.buildx-cache-staging-${POLICY}_${PLATFORM} \
-		--opt build-arg:POLICY=${POLICY} --opt build-arg:PLATFORM=${PLATFORM} --opt build-arg:BASEIMAGE=${BASEIMAGE} \
-		--opt "build-arg:DEVTOOLSET_ROOTPATH=${DEVTOOLSET_ROOTPATH}" --opt "build-arg:PREPEND_PATH=${PREPEND_PATH}" --opt "build-arg:LD_LIBRARY_PATH_ARG=${LD_LIBRARY_PATH_ARG}" \
-		--output type=docker,name=quay.io/pypa/${POLICY}_${PLATFORM}:${COMMIT_SHA} | docker load
 else
 	echo "Unsupported build frontend: '${MANYLINUX_BUILD_FRONTEND}'"
 	exit 1
-fi
-
-docker run --rm -v $(pwd)/tests:/tests:ro ${TEST_TAG} /tests/run_tests.sh
-
-if [ "${MANYLINUX_BUILD_FRONTEND}" != "docker" ]; then
-	if [ -d $(pwd)/.buildx-cache-${POLICY}_${PLATFORM} ]; then
-		rm -rf $(pwd)/.buildx-cache-${POLICY}_${PLATFORM}
-	fi
-	mv $(pwd)/.buildx-cache-staging-${POLICY}_${PLATFORM} $(pwd)/.buildx-cache-${POLICY}_${PLATFORM}
 fi
