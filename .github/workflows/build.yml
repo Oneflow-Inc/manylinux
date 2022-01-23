@@ -86,12 +86,12 @@ jobs:
       - name: Build
         run: |
           ./build.sh
-          echo "{POLICY}={POLICY}" >>  $GITHUB_ENV
-          echo "{PLATFORM}={PLATFORM}" >>  $GITHUB_ENV
-          echo "{BASEIMAGE}={BASEIMAGE}" >>  $GITHUB_ENV
-          echo "{DEVTOOLSET_ROOTPATH}={DEVTOOLSET_ROOTPATH}" >>  $GITHUB_ENV
-          echo "{PREPEND_PATH}={PREPEND_PATH}" >>  $GITHUB_ENV
-          echo "{LD_LIBRARY_PATH_ARG}={LD_LIBRARY_PATH_ARG}" >>  $GITHUB_ENV
+          echo "POLICY=${POLICY}" >>  $GITHUB_ENV
+          echo "PLATFORM=${PLATFORM}" >>  $GITHUB_ENV
+          echo "BASEIMAGE=${BASEIMAGE}" >>  $GITHUB_ENV
+          echo "DEVTOOLSET_ROOTPATH=${DEVTOOLSET_ROOTPATH}" >>  $GITHUB_ENV
+          echo "PREPEND_PATH=${PREPEND_PATH}" >>  $GITHUB_ENV
+          echo "LD_LIBRARY_PATH_ARG=${LD_LIBRARY_PATH_ARG}" >>  $GITHUB_ENV
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
