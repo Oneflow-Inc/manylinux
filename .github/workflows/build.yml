@@ -44,7 +44,7 @@ jobs:
       PLATFORM: ${{ matrix.platform }}
       COMMIT_SHA: ${{ github.sha }}
       DOCKER_REPO: "${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}"
-      TEST_TAG: ${{ env.DOCKER_HUB_NAMESPACE }}/${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}:${{ github.sha }}
+      TEST_TAG: ${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}:${{ github.sha }}
 
     steps:
       - name: Checkout
