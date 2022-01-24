@@ -34,6 +34,10 @@ jobs:
       matrix:
         tag-suffix: ["cuda11.2", "cuda10.2"]
         include:
+          - tag-suffix: "cuda11.3"
+            policy: "manylinux2014"
+            platform: "x86_64"
+            CUDA_BASE_IMAGE: "nvidia/cuda:11.3.1-cudnn8-devel-centos7"
           - tag-suffix: "cuda11.2"
             policy: "manylinux2014"
             platform: "x86_64"
