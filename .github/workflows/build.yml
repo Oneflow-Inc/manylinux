@@ -73,19 +73,8 @@ jobs:
         with:
           platforms: ${{ matrix.platform }}
 
-      # - name: Set BuildKit for ppc64le
-      #   if: matrix.platform == 'ppc64le'
-      #   run: echo 'MANYLINUX_BUILD_FRONTEND=buildkit' >> $GITHUB_ENV
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-
-      - name: Setup cache
-        uses: actions/cache@v2
-        with:
-          path: .buildx-cache-${{ matrix.policy }}_${{ matrix.platform }}/*
-          key: buildx-cache-${{ matrix.policy }}-${{ matrix.platform }}-${{ matrix.tag-suffix }}-${{ hashFiles('docker/**') }}
-          restore-keys: buildx-cache-${{ matrix.policy }}-${{ matrix.platform }}-${{ matrix.tag-suffix }}
 
       - name: Build
         run: ./build.sh
@@ -108,19 +97,3 @@ jobs:
             DEVTOOLSET_ROOTPATH
             PREPEND_PATH
             LD_LIBRARY_PATH_ARG
-      # - name: Push image to DockerHub
-      #   run: |
-      #     LATEST_TAG="${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.DOCKER_REPO }}:latest"
-      #     COMMIT_TAG="${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.DOCKER_REPO }}:${{ env.COMMIT_SHA }}"
-      #     docker tag ${{ env.TEST_TAG}} ${LATEST_TAG}
-      #     docker tag ${{ env.TEST_TAG}} ${COMMIT_TAG}
-      #     docker push ${LATEST_TAG}
-      #     docker push ${COMMIT_TAG}
-      # - name: Push image to ACR
-      #   run: |
-      #     LATEST_TAG="${{ env.ACR_REGISTRY }}/${{ env.ACR_NAMESPACE }}/${{ env.DOCKER_REPO }}:latest"
-      #     COMMIT_TAG="${{ env.ACR_REGISTRY }}/${{ env.ACR_NAMESPACE }}/${{ env.DOCKER_REPO }}:${{ env.COMMIT_SHA }}"
-      #     docker tag ${{ env.TEST_TAG}} ${LATEST_TAG}
-      #     docker tag ${{ env.TEST_TAG}} ${COMMIT_TAG}
-      #     docker push ${LATEST_TAG}
-      #     docker push ${COMMIT_TAG}
