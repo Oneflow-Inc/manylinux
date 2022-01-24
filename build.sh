@@ -48,7 +48,8 @@ elif [ "${POLICY}" == "manylinux2014" ]; then
 	if [ "${PLATFORM}" == "s390x" ]; then
 		BASEIMAGE="s390x/clefos:7"
 	else
-		BASEIMAGE="${CUDA_BASE_IMAGE}"
+		DEFAULT_BASEIMAGE="${MULTIARCH_PREFIX}centos:7"
+		BASEIMAGE="${CUDA_BASE_IMAGE:-${DEFAULT_BASEIMAGE}}"
 	fi
 	DEVTOOLSET_ROOTPATH="/opt/rh/devtoolset-10/root"
 	PREPEND_PATH="${DEVTOOLSET_ROOTPATH}/usr/bin:"
