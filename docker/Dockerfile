@@ -149,7 +149,7 @@ COPY --from=build_cpython310 /opt/_internal /opt/_internal/
 RUN manylinux-entrypoint /build_scripts/finalize-python.sh
 
 
-FROM runtime_base
+FROM runtime_base AS manylinux
 COPY --from=build_git /manylinux-rootfs /
 COPY --from=build_swig /manylinux-rootfs /
 COPY --from=build_cpython /manylinux-rootfs /
@@ -173,5 +173,9 @@ ARG BAZEL_URL="https://github.com/bazelbuild/bazel/releases/download/3.4.1/bazel
 RUN curl -L $BAZEL_URL -o /usr/local/bin/bazel \
     && chmod +x /usr/local/bin/bazel
 RUN yum install -y wget nasm rdma-core-devel rsync gdb ninja-build openblas-static devtoolset-7-gcc* vim ccache htop
+
+FROM manylinux AS manylinux-with-trt
+ARG trt=...
+RUN install trt ${}
 
 CMD ["/bin/bash"]
