@@ -118,7 +118,7 @@ elif [ "${AUDITWHEEL_POLICY}" == "manylinux_2_24" ]; then
 	sed -i 's/none/en_US/g' /etc/apt/apt.conf.d/docker-no-languages
 	apt-get update -qq
 	apt-get upgrade -qq -y
-	apt-get install -qq -y --no-install-recommends ca-certificates gpg curl locales
+	apt-get install -qq -y --no-install-recommends ca-certificates gnupg curl locales
 	TOOLCHAIN_DEPS="binutils gcc g++ gfortran"
 elif [ "${AUDITWHEEL_POLICY}" == "musllinux_1_1" ]; then
 	TOOLCHAIN_DEPS="binutils gcc g++ gfortran"
