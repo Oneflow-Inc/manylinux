@@ -35,10 +35,9 @@ jobs:
         tag-suffix: ["cuda11.2", "cuda10.2"]
         include:
           - tag-suffix: "cuda11.0"
-            policy: "manylinux2014"
+            policy: "manylinux_2_24"
             platform: "x86_64"
             CUDA_BASE_IMAGE: "nvidia/cuda:11.0.3-cudnn8-devel-ubuntu16.04"
-            target: "manylinux_2_24"
           - tag-suffix: "cuda11.4"
             policy: "manylinux2014"
             platform: "x86_64"
