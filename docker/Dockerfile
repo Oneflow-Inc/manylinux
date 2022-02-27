@@ -172,6 +172,9 @@ ENV SSL_CERT_FILE=/opt/_internal/certs.pem
 ARG BAZEL_URL="https://github.com/bazelbuild/bazel/releases/download/3.4.1/bazel-3.4.1-linux-x86_64"
 RUN curl -L $BAZEL_URL -o /usr/local/bin/bazel \
     && chmod +x /usr/local/bin/bazel
-RUN yum install -y wget nasm rdma-core-devel rsync gdb ninja-build openblas-static devtoolset-7-gcc* vim ccache htop
 
+FROM runtime_base as target_manylinux2014
+RUN yum install -y wget nasm rdma-core-devel rsync gdb ninja-build openblas-static devtoolset-7-gcc* vim ccache htop
+CMD ["/bin/bash"]
+FROM runtime_base as target_manylinux_2_24
 CMD ["/bin/bash"]
