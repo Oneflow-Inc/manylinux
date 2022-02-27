@@ -60,6 +60,7 @@ elif [ "${POLICY}" == "manylinux2014" ]; then
 	fi
 elif [ "${POLICY}" == "manylinux_2_24" ]; then
 	BASEIMAGE="${MULTIARCH_PREFIX}debian:9"
+	BASEIMAGE="${CUDA_BASE_IMAGE:-${DEFAULT_BASEIMAGE}}"
 	DEVTOOLSET_ROOTPATH=
 	PREPEND_PATH=
 	LD_LIBRARY_PATH_ARG=
