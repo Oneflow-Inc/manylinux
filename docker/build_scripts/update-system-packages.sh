@@ -12,6 +12,11 @@ source $MY_DIR/build_utils.sh
 
 fixup-mirrors
 if [ "${AUDITWHEEL_POLICY}" == "manylinux2010" ] || [ "${AUDITWHEEL_POLICY}" == "manylinux2014" ]; then
+	yum -y install yum-versionlock
+	yum versionlock add libcudnn8-devel
+	yum versionlock add libcudnn8
+	yum versionlock list libcudnn8-devel
+	yum versionlock list libcudnn8
 	yum -y update
 	if ! localedef -V &> /dev/null; then
 		# somebody messed up glibc-common package to squeeze image size, reinstall the package
