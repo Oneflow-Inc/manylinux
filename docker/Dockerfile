@@ -172,7 +172,7 @@ ENV SSL_CERT_FILE=/opt/_internal/certs.pem
 ARG BAZEL_URL="https://github.com/bazelbuild/bazel/releases/download/3.4.1/bazel-3.4.1-linux-x86_64"
 RUN curl -L $BAZEL_URL -o /usr/local/bin/bazel \
     && chmod +x /usr/local/bin/bazel
-RUN yum install -y wget nasm rdma-core-devel rsync gdb ninja-build openblas-static devtoolset-7-gcc* vim ccache htop
+RUN yum install -y wget nasm rdma-core-devel rsync gdb ninja-build openblas-static devtoolset-7-gcc* vim ccache htop fuse-devel
 
 RUN wget https://github.com/Oneflow-Inc/llvm-project/releases/download/llvmorg-13.0.0-maybe/clangd-13.AppImage && \
     mv clangd-13.AppImage /usr/local/bin/clangd && \
