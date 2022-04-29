@@ -174,11 +174,8 @@ RUN curl -L $BAZEL_URL -o /usr/local/bin/bazel \
     && chmod +x /usr/local/bin/bazel
 RUN yum install -y wget nasm rdma-core-devel rsync gdb ninja-build openblas-static devtoolset-7-gcc* vim ccache htop
 
-# clangd: /usr/lib64/libc.so.6: version `GLIBC_2.18' not found (required by clangd)
-RUN wget https://github.com/clangd/clangd/releases/download/14.0.0/clangd-linux-14.0.0.zip && \
-    unzip clangd-linux-14.0.0.zip && \
-    mv clangd_14.0.0/bin/clangd /usr/local/bin/clangd && \
-    chmod +x /usr/local/bin/clangd && \
-    rm clangd-linux-14.0.0.zip
+RUN wget https://github.com/Oneflow-Inc/llvm-project/releases/download/llvmorg-13.0.0-maybe/clangd-13.AppImage && \
+    mv clangd-13.AppImage /usr/local/bin/clangd && \
+    chmod +x /usr/local/bin/clangd
 
 CMD ["/bin/bash"]
