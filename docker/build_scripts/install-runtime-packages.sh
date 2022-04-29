@@ -37,6 +37,9 @@ if [ "${AUDITWHEEL_POLICY}" == "manylinux2010" ] || [ "${AUDITWHEEL_POLICY}" == 
 	yum -y install yum-versionlock
 	yum versionlock add libcudnn8-devel
 	yum versionlock add libcudnn8
+	yum versionlock add cuda-*
+	yum versionlock add libnccl
+	yum versionlock add libnccl-devel
 	yum versionlock list libcudnn8-devel
 	yum versionlock list libcudnn8
 elif [ "${AUDITWHEEL_POLICY}" == "manylinux_2_24" ]; then
