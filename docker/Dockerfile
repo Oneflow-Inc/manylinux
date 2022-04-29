@@ -173,5 +173,10 @@ ARG BAZEL_URL="https://github.com/bazelbuild/bazel/releases/download/3.4.1/bazel
 RUN curl -L $BAZEL_URL -o /usr/local/bin/bazel \
     && chmod +x /usr/local/bin/bazel
 RUN yum install -y wget nasm rdma-core-devel rsync gdb ninja-build openblas-static devtoolset-7-gcc* vim ccache htop
+RUN wget https://github.com/clangd/clangd/releases/download/14.0.0/clangd-linux-14.0.0.zip && \
+    unzip clangd-linux-14.0.0.zip && \
+    mv clangd_14.0.0/bin/clangd /usr/local/bin/clangd && \
+    chmod +x /usr/local/bin/clangd && \
+    rm clangd-linux-14.0.0.zip
 
 CMD ["/bin/bash"]
