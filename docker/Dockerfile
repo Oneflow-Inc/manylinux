@@ -174,7 +174,7 @@ RUN curl -L $BAZEL_URL -o /usr/local/bin/bazel \
     && chmod +x /usr/local/bin/bazel
 RUN yum install -y wget nasm rdma-core-devel rsync gdb ninja-build openblas-static devtoolset-7-gcc* vim ccache htop fuse-devel
 
-RUN wget https://github.com/Oneflow-Inc/llvm-project/releases/download/llvmorg-13.0.0-maybe/clangd-13.AppImage -O /usr/local/bin/clangd && \
+RUN wget https://github.com/Oneflow-Inc/llvm-project/releases/download/maybe-14.0.4/clang-tidy-14.AppImage -O /usr/local/bin/clangd && \
     chmod +x /usr/local/bin/clangd
 
 CMD ["/bin/bash"]
