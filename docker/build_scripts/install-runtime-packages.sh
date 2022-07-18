@@ -104,7 +104,7 @@ elif [ "${AUDITWHEEL_POLICY}" == "manylinux2014" ]; then
 	yum -y update
 	yum -y install yum-utils curl
 	yum-config-manager --enable extras
-	TOOLCHAIN_DEPS="devtoolset-10-binutils devtoolset-10-gcc devtoolset-10-gcc-c++ devtoolset-10-gcc-gfortran devtoolset-10-libasan-devel devtoolset-10-libubsan-devel devtoolset-10-libtsan-devel"
+	TOOLCHAIN_DEPS="devtoolset-10-binutils devtoolset-10-gcc devtoolset-10-gcc-c++ devtoolset-10-gcc-gfortran"
 	if [ "${AUDITWHEEL_ARCH}" == "x86_64" ]; then
 		# Software collection (for devtoolset-10)
 		yum -y install centos-release-scl-rh
