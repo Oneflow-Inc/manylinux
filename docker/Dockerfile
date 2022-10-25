@@ -26,18 +26,18 @@ COPY build_scripts/fixup-mirrors.sh /usr/local/sbin/fixup-mirrors
 
 # setup entrypoint, this will wrap commands with `linux32` with i686 images
 COPY build_scripts/install-entrypoint.sh \
-     build_scripts/update-system-packages.sh \
-     build_scripts/build_utils.sh \
-     /build_scripts/
+    build_scripts/update-system-packages.sh \
+    build_scripts/build_utils.sh \
+    /build_scripts/
 
 RUN /build_scripts/install-entrypoint.sh && rm -rf /build_scripts
 COPY manylinux-entrypoint /usr/local/bin/manylinux-entrypoint
 ENTRYPOINT ["manylinux-entrypoint"]
 
 COPY build_scripts/install-runtime-packages.sh \
-     build_scripts/update-system-packages.sh \
-     build_scripts/build_utils.sh \
-     /build_scripts/
+    build_scripts/update-system-packages.sh \
+    build_scripts/build_utils.sh \
+    /build_scripts/
 RUN manylinux-entrypoint /build_scripts/install-runtime-packages.sh && rm -rf /build_scripts/
 
 COPY build_scripts/build_utils.sh /build_scripts/
@@ -136,9 +136,9 @@ RUN manylinux-entrypoint /build_scripts/build-cpython.sh 3.10.2
 
 FROM build_cpython AS all_python
 COPY build_scripts/install-pypy.sh \
-     build_scripts/pypy.sha256 \
-     build_scripts/finalize-python.sh \
-     /build_scripts/
+    build_scripts/pypy.sha256 \
+    build_scripts/finalize-python.sh \
+    /build_scripts/
 RUN manylinux-entrypoint /build_scripts/install-pypy.sh 3.7 7.3.7
 RUN manylinux-entrypoint /build_scripts/install-pypy.sh 3.8 7.3.7
 COPY --from=build_cpython36 /opt/_internal /opt/_internal/
@@ -155,18 +155,27 @@ COPY --from=build_swig /manylinux-rootfs /
 COPY --from=build_cpython /manylinux-rootfs /
 COPY --from=all_python /opt/_internal /opt/_internal/
 COPY build_scripts/finalize.sh \
-     build_scripts/update-system-packages.sh \
-     build_scripts/python-tag-abi-tag.py \
-     build_scripts/requirements3.6.txt \
-     build_scripts/requirements3.7.txt \
-     build_scripts/requirements3.8.txt \
-     build_scripts/requirements3.9.txt \
-     build_scripts/requirements3.10.txt \
-     build_scripts/requirements-base-tools.txt \
-     /build_scripts/
+    build_scripts/update-system-packages.sh \
+    build_scripts/python-tag-abi-tag.py \
+    build_scripts/requirements3.6.txt \
+    build_scripts/requirements3.7.txt \
+    build_scripts/requirements3.8.txt \
+    build_scripts/requirements3.9.txt \
+    build_scripts/requirements3.10.txt \
+    build_scripts/requirements-base-tools.txt \
+    /build_scripts/
 COPY build_scripts/requirements-tools/* /build_scripts/requirements-tools/
 RUN manylinux-entrypoint /build_scripts/finalize.sh && rm -rf /build_scripts
 
 ENV SSL_CERT_FILE=/opt/_internal/certs.pem
+
+ARG BAZEL_URL="https://github.com/bazelbuild/bazel/releases/download/3.4.1/bazel-3.4.1-linux-x86_64"
+RUN curl -L $BAZEL_URL -o /usr/local/bin/bazel \
+    && chmod +x /usr/local/bin/bazel
+RUN yum install -y wget nasm rdma-core-devel rsync gdb ninja-build openblas-static devtoolset-7-gcc* vim ccache htop fuse-devel
+RUN yum install -y devtoolset-10-libasan-devel devtoolset-10-libubsan-devel devtoolset-10-libtsan-devel
+
+RUN wget https://github.com/Oneflow-Inc/llvm-project/releases/download/maybe-14.0.4/clang-tidy-14.AppImage -O /usr/local/bin/clangd && \
+    chmod +x /usr/local/bin/clangd
 
 CMD ["/bin/bash"]
