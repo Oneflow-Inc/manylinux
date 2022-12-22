@@ -8,18 +8,18 @@ on:
         type: boolean
         required: false
         default: true
-  # push:
-  #   branches-ignore:
-  #     - "update-dependencies-pr"
-  #   paths:
-  #     - ".github/workflows/build.yml"
-  #     - "docker/**"
-  #     - "*.sh"
-  # pull_request:
-  #   paths:
-  #     - ".github/workflows/build.yml"
-  #     - "docker/**"
-  #     - "build.sh"
+  push:
+    branches-ignore:
+      - "update-dependencies-pr"
+    paths:
+      - ".github/workflows/build.yml"
+      - "docker/**"
+      - "*.sh"
+  pull_request:
+    paths:
+      - ".github/workflows/build.yml"
+      - "docker/**"
+      - "build.sh"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
