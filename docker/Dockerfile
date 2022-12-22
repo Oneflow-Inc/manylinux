@@ -26,18 +26,18 @@ COPY build_scripts/fixup-mirrors.sh /usr/local/sbin/fixup-mirrors
 
 # setup entrypoint, this will wrap commands with `linux32` with i686 images
 COPY build_scripts/install-entrypoint.sh \
-    build_scripts/update-system-packages.sh \
-    build_scripts/build_utils.sh \
-    /build_scripts/
+     build_scripts/update-system-packages.sh \
+     build_scripts/build_utils.sh \
+     /build_scripts/
 
 RUN /build_scripts/install-entrypoint.sh && rm -rf /build_scripts
 COPY manylinux-entrypoint /usr/local/bin/manylinux-entrypoint
 ENTRYPOINT ["manylinux-entrypoint"]
 
 COPY build_scripts/install-runtime-packages.sh \
-    build_scripts/update-system-packages.sh \
-    build_scripts/build_utils.sh \
-    /build_scripts/
+     build_scripts/update-system-packages.sh \
+     build_scripts/build_utils.sh \
+     /build_scripts/
 RUN manylinux-entrypoint /build_scripts/install-runtime-packages.sh && rm -rf /build_scripts/
 
 COPY build_scripts/build_utils.sh /build_scripts/
