@@ -8,13 +8,13 @@ on:
         type: boolean
         required: false
         default: true
-  push:
-    branches-ignore:
-      - "update-dependencies-pr"
-    paths:
-      - ".github/workflows/build.yml"
-      - "docker/**"
-      - "*.sh"
+  # push:
+  #   branches-ignore:
+  #     - "update-dependencies-pr"
+  #   paths:
+  #     - ".github/workflows/build.yml"
+  #     - "docker/**"
+  #     - "*.sh"
   # pull_request:
   #   paths:
   #     - ".github/workflows/build.yml"
@@ -25,82 +25,27 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
-env:
-  REGION_ID: cn-beijing
-  ACR_REGISTRY: registry.cn-beijing.aliyuncs.com
-  ACR_NAMESPACE: oneflow
-  DOCKER_HUB_NAMESPACE: oneflowinc
-
 jobs:
   build_manylinux:
-    name: ${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}
-    runs-on: ubuntu-20.04
+    name: ${{ matrix.policy }}_${{ matrix.platform }}
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        tag-suffix: ["cuda11.2", "cuda10.2"]
+        policy: ["manylinux2014", "manylinux_2_24", "musllinux_1_1"]
+        platform: ["i686", "x86_64"]
         include:
-          - tag-suffix: "cuda11.8"
-            policy: "manylinux2014"
+          - policy: "manylinux_2_28"
             platform: "x86_64"
-            CUDA_BASE_IMAGE: "nvidia/cuda:11.8.0-cudnn8-devel-centos7"
-          - tag-suffix: "cuda11.6"
-            policy: "manylinux2014"
-            platform: "x86_64"
-            CUDA_BASE_IMAGE: "nvidia/cuda:11.6.2-cudnn8-devel-centos7"
-          - tag-suffix: "cuda11.5"
-            policy: "manylinux2014"
-            platform: "x86_64"
-            CUDA_BASE_IMAGE: "nvidia/cuda:11.5.1-cudnn8-devel-centos7"
-          - tag-suffix: "cuda11.4"
-            policy: "manylinux2014"
-            platform: "x86_64"
-            CUDA_BASE_IMAGE: "nvidia/cuda:11.4.3-cudnn8-devel-centos7"
-          - tag-suffix: "cuda11.3"
-            policy: "manylinux2014"
-            platform: "x86_64"
-            CUDA_BASE_IMAGE: "nvidia/cuda:11.3.1-cudnn8-devel-centos7"
-          - tag-suffix: "cuda11.2"
-            policy: "manylinux2014"
-            platform: "x86_64"
-            CUDA_BASE_IMAGE: "nvidia/cuda:11.2.2-cudnn8-devel-centos7"
-          - tag-suffix: "cuda11.0"
-            policy: "manylinux2014"
-            platform: "x86_64"
-            CUDA_BASE_IMAGE: "nvidia/cuda:11.0.3-cudnn8-devel-centos7"
-            target: "manylinux"
-          - tag-suffix: "cuda10.2"
-            policy: "manylinux2014"
-            platform: "x86_64"
-            CUDA_BASE_IMAGE: "nvidia/cuda:10.2-cudnn7-devel-centos7"
-          - tag-suffix: "cpu"
-            policy: "manylinux2014"
-            platform: "x86_64"
-            CUDA_BASE_IMAGE: ""
 
     env:
       POLICY: ${{ matrix.policy }}
       PLATFORM: ${{ matrix.platform }}
       COMMIT_SHA: ${{ github.sha }}
-      DOCKER_REPO: "${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}"
-      TEST_TAG: ${{ matrix.policy }}_${{ matrix.platform }}_${{ matrix.tag-suffix }}:${{ github.sha }}
-      CUDA_BASE_IMAGE: ${{ matrix.CUDA_BASE_IMAGE }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      # 1.1 Login to ACR
-      - name: Login to ACR with the AccessKey pair
-        uses: aliyun/acr-login@v1
-        with:
-          login-server: https://registry.${{env.REGION_ID}}.aliyuncs.com
-          username: "${{ secrets.ACR_USERNAME }}"
-          password: "${{ secrets.ACR_PASSWORD }}"
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up emulation
         if: matrix.platform != 'i686' && matrix.platform != 'x86_64'
@@ -111,27 +56,23 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Setup cache
+        if: github.event_name != 'workflow_dispatch' || fromJSON(github.event.inputs.useCache)
+        uses: actions/cache@v3
+        with:
+          path: .buildx-cache-${{ matrix.policy }}_${{ matrix.platform }}/*
+          key: buildx-cache-${{ matrix.policy }}-${{ matrix.platform }}-${{ hashFiles('docker/**') }}
+          restore-keys: buildx-cache-${{ matrix.policy }}-${{ matrix.platform }}-
+
       - name: Build
         run: ./build.sh
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          tags: |
-            ${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.DOCKER_REPO }}:latest
-            ${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.DOCKER_REPO }}:${{ env.COMMIT_SHA }}
-            ${{ env.ACR_REGISTRY }}/${{ env.ACR_NAMESPACE }}/${{ env.DOCKER_REPO }}:latest
-            ${{ env.ACR_REGISTRY }}/${{ env.ACR_NAMESPACE }}/${{ env.DOCKER_REPO }}:${{ env.COMMIT_SHA }}
-          cache-from: type=registry,ref=${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.DOCKER_REPO }}:latest
-          cache-to: type=inline
-          context: ./docker/
-          build-args: |
-            POLICY
-            PLATFORM
-            BASEIMAGE
-            DEVTOOLSET_ROOTPATH
-            PREPEND_PATH
-            LD_LIBRARY_PATH_ARG
+
+      - name: Deploy
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'pypa/manylinux'
+        run: ./deploy.sh
+        env:
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
 
   all_passed:
     needs: [build_manylinux]
