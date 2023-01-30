@@ -173,6 +173,7 @@ ARG BAZEL_URL="https://github.com/bazelbuild/bazel/releases/download/3.4.1/bazel
 RUN curl -L $BAZEL_URL -o /usr/local/bin/bazel \
     && chmod +x /usr/local/bin/bazel
 RUN yum install -y wget nasm rdma-core-devel rsync gdb ninja-build openblas-static devtoolset-7-gcc* vim ccache htop fuse-devel
+RUN yum install -y devtoolset-9
 RUN yum install -y devtoolset-10-libasan-devel devtoolset-10-libubsan-devel devtoolset-10-libtsan-devel
 
 RUN wget https://github.com/Oneflow-Inc/llvm-project/releases/download/maybe-14.0.4/clang-tidy-14.AppImage -O /usr/local/bin/clangd && \
