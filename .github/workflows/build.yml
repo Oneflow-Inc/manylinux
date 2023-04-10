@@ -75,6 +75,10 @@ jobs:
             policy: "manylinux2014"
             platform: "x86_64"
             CUDA_BASE_IMAGE: ""
+          - tag-suffix: "mlu4.20"
+            policy: "manylinux2014"
+            platform: "x86_64"
+            CUDA_BASE_IMAGE: "registry.cn-beijing.aliyuncs.com/oneflow/cambricon-cnrt4.20-devel-centos"
 
     env:
       POLICY: ${{ matrix.policy }}
