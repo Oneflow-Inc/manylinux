@@ -12,7 +12,7 @@ on:
     branches-ignore:
       - "update-dependencies-pr"
     paths:
-      - ".github/workflows/build.yml"
+      - ".github/workflows/**"
       - "docker/**"
       - "*.sh"
 
