@@ -5,7 +5,7 @@ from pathlib import Path
 import nox
 
 
-@nox.session(python=["3.6", "3.7", "3.8", "3.9", "3.10", "3.11"])
+@nox.session(python=["3.6", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12"])
 def update_python_dependencies(session):
     session.install("pip-tools")
     env = os.environ.copy()
@@ -57,7 +57,13 @@ def update_python_tools(session):
         )
 
 
-@nox.session(python="3.10", reuse_venv=True)
+@nox.session(python="3.11", reuse_venv=True)
 def update_native_dependencies(session):
     session.install("lastversion!=1.6.0,!=2.0.0", "packaging", "requests")
-    session.run("python", "update_native_dependencies.py", *session.posargs)
+    session.run("python", "tools/update_native_dependencies.py", *session.posargs)
+
+
+@nox.session(python="3.11", reuse_venv=True)
+def update_interpreters_download(session):
+    session.install("packaging", "requests")
+    session.run("python", "tools/update_interpreters_download.py", *session.posargs)

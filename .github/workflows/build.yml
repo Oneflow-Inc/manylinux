@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        policy: ["manylinux2014", "manylinux_2_24", "musllinux_1_1"]
+        policy: ["manylinux2014", "musllinux_1_1", "musllinux_1_2"]
         platform: ["i686", "x86_64"]
         include:
           - policy: "manylinux_2_28"
@@ -45,16 +45,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up emulation
         if: matrix.platform != 'i686' && matrix.platform != 'x86_64'
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: ${{ matrix.platform }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Setup cache
         if: github.event_name != 'workflow_dispatch' || fromJSON(github.event.inputs.useCache)

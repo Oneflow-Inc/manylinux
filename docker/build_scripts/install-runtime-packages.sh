@@ -34,7 +34,7 @@ source $MY_DIR/build_utils.sh
 # MANYLINUX_DEPS: Install development packages (except for libgcc which is provided by gcc install)
 if [ "${AUDITWHEEL_POLICY}" == "manylinux2014" ] || [ "${AUDITWHEEL_POLICY}" == "manylinux_2_28" ]; then
 	MANYLINUX_DEPS="glibc-devel libstdc++-devel glib2-devel libX11-devel libXext-devel libXrender-devel mesa-libGL-devel libICE-devel libSM-devel zlib-devel expat-devel"
-	yum -y install yum-versionlock
+  yum -y install yum-versionlock
 	yum versionlock add libcudnn8-devel
 	yum versionlock add libcudnn8
 	yum versionlock add cuda-*
@@ -42,9 +42,7 @@ if [ "${AUDITWHEEL_POLICY}" == "manylinux2014" ] || [ "${AUDITWHEEL_POLICY}" == 
 	yum versionlock add libnccl-devel
 	yum versionlock list libcudnn8-devel
 	yum versionlock list libcudnn8
-elif [ "${AUDITWHEEL_POLICY}" == "manylinux_2_24" ]; then
-	MANYLINUX_DEPS="libc6-dev libstdc++-6-dev libglib2.0-dev libx11-dev libxext-dev libxrender-dev libgl1-mesa-dev libice-dev libsm-dev libz-dev libexpat1-dev"
-elif [ "${AUDITWHEEL_POLICY}" == "musllinux_1_1" ]; then
+elif [ "${BASE_POLICY}" == "musllinux" ]; then
 	MANYLINUX_DEPS="musl-dev libstdc++ glib-dev libx11-dev libxext-dev libxrender-dev mesa-dev libice-dev libsm-dev zlib-dev expat-dev"
 else
 	echo "Unsupported policy: '${AUDITWHEEL_POLICY}'"
@@ -54,13 +52,13 @@ fi
 # RUNTIME_DEPS: Runtime dependencies. c.f. install-build-packages.sh
 if [ "${AUDITWHEEL_POLICY}" == "manylinux2014" ] || [ "${AUDITWHEEL_POLICY}" == "manylinux_2_28" ]; then
 	RUNTIME_DEPS="zlib bzip2 expat ncurses readline gdbm libpcap xz openssl keyutils-libs libkadm5 libcom_err libidn libcurl uuid libffi libdb"
-    if [ "${AUDITWHEEL_POLICY}" == "manylinux_2_28" ]; then
-        RUNTIME_DEPS="${RUNTIME_DEPS} tk"
-    fi
-elif [ "${AUDITWHEEL_POLICY}" == "manylinux_2_24" ]; then
-	RUNTIME_DEPS="zlib1g libbz2-1.0 libexpat1 libncurses5 libreadline7 tk libgdbm3 libdb5.3 libpcap0.8 liblzma5 libssl1.1 libkeyutils1 libkrb5-3 libcomerr2 libidn2-0 libcurl3 uuid libffi6"
-elif [ "${AUDITWHEEL_POLICY}" == "musllinux_1_1" ]; then
-	RUNTIME_DEPS="zlib bzip2 expat ncurses5-libs readline tk gdbm db xz openssl keyutils-libs krb5-libs libcom_err libidn2 libcurl libuuid libffi"
+	if [ "${AUDITWHEEL_POLICY}" == "manylinux2014" ]; then
+		RUNTIME_DEPS="${RUNTIME_DEPS} libXft"
+	elif [ "${AUDITWHEEL_POLICY}" == "manylinux_2_28" ]; then
+		RUNTIME_DEPS="${RUNTIME_DEPS} tk"
+	fi
+elif [ "${BASE_POLICY}" == "musllinux" ]; then
+	RUNTIME_DEPS="zlib bzip2 expat ncurses-libs readline tk gdbm db xz openssl keyutils-libs krb5-libs libcom_err libidn2 libcurl libuuid libffi"
 else
 	echo "Unsupported policy: '${AUDITWHEEL_POLICY}'"
 	exit 1
@@ -96,15 +94,6 @@ if [ "${AUDITWHEEL_POLICY}" == "manylinux2014" ]; then
 		# Install mayeut/devtoolset-10 repo to get devtoolset-10
 		curl -fsSLo /etc/yum.repos.d/mayeut-devtoolset-10.repo https://copr.fedorainfracloud.org/coprs/mayeut/devtoolset-10/repo/custom-1/mayeut-devtoolset-10-custom-1.repo
 	fi
-elif [ "${AUDITWHEEL_POLICY}" == "manylinux_2_24" ]; then
-	PACKAGE_MANAGER=apt
-	BASETOOLS="${BASETOOLS} hardlink hostname"
-	export DEBIAN_FRONTEND=noninteractive
-	sed -i 's/none/en_US/g' /etc/apt/apt.conf.d/docker-no-languages
-	apt-get update -qq
-	apt-get upgrade -qq -y
-	apt-get install -qq -y --no-install-recommends ca-certificates gpg curl locales
-	TOOLCHAIN_DEPS="binutils gcc g++ gfortran"
 elif [ "${AUDITWHEEL_POLICY}" == "manylinux_2_28" ]; then
 	PACKAGE_MANAGER=dnf
 	BASETOOLS="${BASETOOLS} curl glibc-locale-source glibc-langpack-en hardlink hostname libcurl libnsl libxcrypt which"
@@ -121,9 +110,9 @@ elif [ "${AUDITWHEEL_POLICY}" == "manylinux_2_28" ]; then
 	if [ "${AUDITWHEEL_ARCH}" == "x86_64" ]; then
 		TOOLCHAIN_DEPS="${TOOLCHAIN_DEPS} yasm"
 	fi
-elif [ "${AUDITWHEEL_POLICY}" == "musllinux_1_1" ]; then
+elif [ "${BASE_POLICY}" == "musllinux" ]; then
 	TOOLCHAIN_DEPS="binutils gcc g++ gfortran"
-	BASETOOLS="${BASETOOLS} curl util-linux"
+	BASETOOLS="${BASETOOLS} curl util-linux tar"
 	PACKAGE_MANAGER=apk
 	apk add --no-cache ca-certificates gnupg
 else
@@ -133,8 +122,6 @@ fi
 
 if [ "${PACKAGE_MANAGER}" == "yum" ]; then
 	yum -y install ${BASETOOLS} ${TOOLCHAIN_DEPS} ${MANYLINUX_DEPS} ${RUNTIME_DEPS}
-elif [ "${PACKAGE_MANAGER}" == "apt" ]; then
-	apt-get install -qq -y --no-install-recommends ${BASETOOLS} ${TOOLCHAIN_DEPS} ${MANYLINUX_DEPS} ${RUNTIME_DEPS}
 elif [ "${PACKAGE_MANAGER}" == "apk" ]; then
 	apk add --no-cache ${BASETOOLS} ${TOOLCHAIN_DEPS} ${MANYLINUX_DEPS} ${RUNTIME_DEPS}
 elif [ "${PACKAGE_MANAGER}" == "dnf" ]; then

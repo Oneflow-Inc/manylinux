@@ -122,11 +122,12 @@ Toolchain: GCC 10
 - s390x image: ``quay.io/pypa/manylinux2014_s390x``
 
 
-manylinux_2_24 (Debian 9 based)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+manylinux_2_24 (Debian 9 based) - EOL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Support for ``manylinux_2_24`` has `ended on January 1st, 2023 <https://github.com/pypa/manylinux/issues/1332>`_.
 
 These images have some caveats mentioned in different issues.
-Deprecation for these images is `being discussed <https://github.com/pypa/manylinux/issues/1332>`_.
 
 Toolchain: GCC 6
 
@@ -172,7 +173,7 @@ Image content
 
 All images currently contain:
 
-- CPython 3.6, 3.7, 3.8, 3.9, 3.10, 3.11, and PyPy 3.7, 3.8, 3.9 installed in
+- CPython 3.6, 3.7, 3.8, 3.9, 3.10, 3.11, 3.12 and PyPy 3.7, 3.8, 3.9, 3.10 installed in
   ``/opt/python/<python tag>-<abi tag>``. The directories are named
   after the PEP 425 tags for each environment --
   e.g. ``/opt/python/cp37-cp37m`` contains a CPython 3.7 build, and
@@ -182,6 +183,49 @@ All images currently contain:
 - Development packages for all the libraries that PEP 571/599 list. One should not assume the presence of any other development package.
 
 - The `auditwheel <https://pypi.python.org/pypi/auditwheel>`_ tool
+
+- The manylinux-interpreters tool which allows to list all available interpreters & install ones missing from the image
+
+  3 commands are available:
+
+  - ``manylinux-interpreters list``
+
+    .. code-block:: bash
+
+      usage: manylinux-interpreters list [-h] [-v] [-i] [--format {text,json}]
+
+      list available or installed interpreters
+
+      options:
+        -h, --help            show this help message and exit
+        -v, --verbose         display additional information (--format=text only, ignored for --format=json)
+        -i, --installed       only list installed interpreters
+        --format {text,json}  text is not meant to be machine readable (i.e. the format is not stable)
+
+  - ``manylinux-interpreters ensure-all``
+
+    .. code-block:: bash
+
+      usage: manylinux-interpreters ensure-all [-h]
+
+      make sure all interpreters are installed
+
+      options:
+        -h, --help  show this help message and exit
+
+  - ``manylinux-interpreters ensure``
+
+    .. code-block:: bash
+
+      usage: manylinux-interpreters ensure [-h] TAG [TAG ...]
+
+      make sure a list of interpreters are installed
+
+      positional arguments:
+        TAG         tag with format '<python tag>-<abi tag>' e.g. 'pp310-pypy310_pp73'
+
+      options:
+        -h, --help  show this help message and exit
 
 Note that less common or virtually unheard of flag combinations
 (such as ``--with-pydebug`` (``d``) and ``--without-pymalloc`` (absence of ``m``)) are not provided.
