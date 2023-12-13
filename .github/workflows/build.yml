@@ -32,7 +32,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tag-suffix: ["cuda11.2", "cuda10.2"]
         include:
           - tag-suffix: "cuda12.2"
             policy: "manylinux2014"
