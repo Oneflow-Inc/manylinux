@@ -34,6 +34,12 @@ source $MY_DIR/build_utils.sh
 # MANYLINUX_DEPS: Install development packages (except for libgcc which is provided by gcc install)
 if [ "${AUDITWHEEL_POLICY}" == "manylinux2014" ] || [ "${AUDITWHEEL_POLICY}" == "manylinux_2_28" ]; then
 	MANYLINUX_DEPS="glibc-devel libstdc++-devel glib2-devel libX11-devel libXext-devel libXrender-devel mesa-libGL-devel libICE-devel libSM-devel zlib-devel expat-devel"
+  fixup-mirrors
+  yum -y install yum-plugin-versionlock
+	yum versionlock add libcudnn*
+	yum versionlock add cuda-*
+	yum versionlock add libnccl
+	yum versionlock add libnccl-devel
 elif [ "${BASE_POLICY}" == "musllinux" ]; then
 	MANYLINUX_DEPS="musl-dev libstdc++ glib-dev libx11-dev libxext-dev libxrender-dev mesa-dev libice-dev libsm-dev zlib-dev expat-dev"
 else

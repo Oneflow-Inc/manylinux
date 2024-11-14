@@ -37,7 +37,7 @@ fi
 
 # setup BASEIMAGE and its specific properties
 if [ "${POLICY}" == "manylinux2014" ]; then
-	BASEIMAGE="quay.io/pypa/manylinux2014_base:2024.11.03-3"
+	BASEIMAGE="${CUDA_BASE_IMAGE:-quay.io/pypa/manylinux2014_base:2024.11.03-3}"
 	DEVTOOLSET_ROOTPATH="/opt/rh/devtoolset-10/root"
 	PREPEND_PATH="${DEVTOOLSET_ROOTPATH}/usr/bin:"
 	if [ "${PLATFORM}" == "i686" ]; then
@@ -87,22 +87,15 @@ if [ "${MANYLINUX_BUILD_FRONTEND}" == "docker" ]; then
 elif [ "${MANYLINUX_BUILD_FRONTEND}" == "podman" ]; then
 	podman build ${BUILD_ARGS_COMMON}
 elif [ "${MANYLINUX_BUILD_FRONTEND}" == "docker-buildx" ]; then
-	USE_LOCAL_CACHE=1
-	docker buildx build \
-		--load \
-		--cache-from=type=local,src=$(pwd)/.buildx-cache-${POLICY}_${PLATFORM} \
-		--cache-to=type=local,dest=$(pwd)/.buildx-cache-staging-${POLICY}_${PLATFORM},mode=max \
-		${BUILD_ARGS_COMMON}
+	env
 else
 	echo "Unsupported build frontend: '${MANYLINUX_BUILD_FRONTEND}'"
 	exit 1
 fi
 
-docker run --rm -v $(pwd)/tests:/tests:ro quay.io/pypa/${POLICY}_${PLATFORM}:${COMMIT_SHA} /tests/run_tests.sh
-
-if [ ${USE_LOCAL_CACHE} -ne 0 ]; then
-	if [ -d $(pwd)/.buildx-cache-${POLICY}_${PLATFORM} ]; then
-		rm -rf $(pwd)/.buildx-cache-${POLICY}_${PLATFORM}
-	fi
-	mv $(pwd)/.buildx-cache-staging-${POLICY}_${PLATFORM} $(pwd)/.buildx-cache-${POLICY}_${PLATFORM}
-fi
+echo "POLICY=${POLICY}" >>  $GITHUB_ENV
+echo "PLATFORM=${PLATFORM}" >>  $GITHUB_ENV
+echo "BASEIMAGE=${BASEIMAGE}" >>  $GITHUB_ENV
+echo "DEVTOOLSET_ROOTPATH=${DEVTOOLSET_ROOTPATH}" >>  $GITHUB_ENV
+echo "PREPEND_PATH=${PREPEND_PATH}" >>  $GITHUB_ENV
+echo "LD_LIBRARY_PATH_ARG=${LD_LIBRARY_PATH_ARG}" >>  $GITHUB_ENV
