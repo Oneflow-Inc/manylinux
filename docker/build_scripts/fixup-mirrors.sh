@@ -6,6 +6,7 @@ set -exuo pipefail
 if [ "${AUDITWHEEL_POLICY}" == "manylinux2014" ] && [ "${AUDITWHEEL_ARCH}" != "s390x" ]; then
 	# Centos 7 is EOL and is no longer available from the usual mirrors, so switch
 	# to https://vault.centos.org
+	touch /etc/yum/pluginconf.d/fastestmirror.conf
 	sed -i 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/fastestmirror.conf
 	sed -i 's/^mirrorlist/#mirrorlist/g' /etc/yum.repos.d/*.repo
 	sed -i 's;^.*baseurl=http://mirror;baseurl=https://vault;g' /etc/yum.repos.d/*.repo
