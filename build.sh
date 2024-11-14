@@ -88,15 +88,6 @@ elif [ "${MANYLINUX_BUILD_FRONTEND}" == "podman" ]; then
 	podman build ${BUILD_ARGS_COMMON}
 elif [ "${MANYLINUX_BUILD_FRONTEND}" == "docker-buildx" ]; then
 	env
-elif [ "${MANYLINUX_BUILD_FRONTEND}" == "buildkit" ]; then
-	echo "Unsupported build frontend: buildkit"
-	exit 1
-	USE_LOCAL_CACHE=1
-	docker buildx build \
-		--load \
-		--cache-from=type=local,src=$(pwd)/.buildx-cache-${POLICY}_${PLATFORM} \
-		--cache-to=type=local,dest=$(pwd)/.buildx-cache-staging-${POLICY}_${PLATFORM},mode=max \
-		${BUILD_ARGS_COMMON}
 else
 	echo "Unsupported build frontend: '${MANYLINUX_BUILD_FRONTEND}'"
 	exit 1
