@@ -32,7 +32,8 @@ if [ "${POLICY}" == "manylinux2014" ]; then
 	if [ "${PLATFORM}" == "s390x" ]; then
 		BASEIMAGE="s390x/clefos:7"
 	else
-		BASEIMAGE="${MULTIARCH_PREFIX}centos:7"
+		DEFAULT_BASEIMAGE="${MULTIARCH_PREFIX}centos:7"
+		BASEIMAGE="${CUDA_BASE_IMAGE:-${DEFAULT_BASEIMAGE}}"
 	fi
 	DEVTOOLSET_ROOTPATH="/opt/rh/devtoolset-10/root"
 	PREPEND_PATH="${DEVTOOLSET_ROOTPATH}/usr/bin:"
@@ -84,31 +85,18 @@ fi
 if [ "${MANYLINUX_BUILD_FRONTEND}" == "docker" ]; then
 	docker build ${BUILD_ARGS_COMMON}
 elif [ "${MANYLINUX_BUILD_FRONTEND}" == "docker-buildx" ]; then
-	docker buildx build \
-		--load \
-		--cache-from=type=local,src=$(pwd)/.buildx-cache-${POLICY}_${PLATFORM} \
-		--cache-to=type=local,dest=$(pwd)/.buildx-cache-staging-${POLICY}_${PLATFORM} \
-		${BUILD_ARGS_COMMON}
+	env
 elif [ "${MANYLINUX_BUILD_FRONTEND}" == "buildkit" ]; then
-	buildctl build \
-		--frontend=dockerfile.v0 \
-		--local context=./docker/ \
-		--local dockerfile=./docker/ \
-		--import-cache type=local,src=$(pwd)/.buildx-cache-${POLICY}_${PLATFORM} \
-		--export-cache type=local,dest=$(pwd)/.buildx-cache-staging-${POLICY}_${PLATFORM} \
-		--opt build-arg:POLICY=${POLICY} --opt build-arg:PLATFORM=${PLATFORM} --opt build-arg:BASEIMAGE=${BASEIMAGE} \
-		--opt "build-arg:DEVTOOLSET_ROOTPATH=${DEVTOOLSET_ROOTPATH}" --opt "build-arg:PREPEND_PATH=${PREPEND_PATH}" --opt "build-arg:LD_LIBRARY_PATH_ARG=${LD_LIBRARY_PATH_ARG}" \
-		--output type=docker,name=quay.io/pypa/${POLICY}_${PLATFORM}:${COMMIT_SHA} | docker load
+	echo "Unsupported build frontend: buildkit"
+	exit 1
 else
 	echo "Unsupported build frontend: '${MANYLINUX_BUILD_FRONTEND}'"
 	exit 1
 fi
 
-docker run --rm -v $(pwd)/tests:/tests:ro quay.io/pypa/${POLICY}_${PLATFORM}:${COMMIT_SHA} /tests/run_tests.sh
-
-if [ "${MANYLINUX_BUILD_FRONTEND}" != "docker" ]; then
-	if [ -d $(pwd)/.buildx-cache-${POLICY}_${PLATFORM} ]; then
-		rm -rf $(pwd)/.buildx-cache-${POLICY}_${PLATFORM}
-	fi
-	mv $(pwd)/.buildx-cache-staging-${POLICY}_${PLATFORM} $(pwd)/.buildx-cache-${POLICY}_${PLATFORM}
-fi
+echo "POLICY=${POLICY}" >>  $GITHUB_ENV
+echo "PLATFORM=${PLATFORM}" >>  $GITHUB_ENV
+echo "BASEIMAGE=${BASEIMAGE}" >>  $GITHUB_ENV
+echo "DEVTOOLSET_ROOTPATH=${DEVTOOLSET_ROOTPATH}" >>  $GITHUB_ENV
+echo "PREPEND_PATH=${PREPEND_PATH}" >>  $GITHUB_ENV
+echo "LD_LIBRARY_PATH_ARG=${LD_LIBRARY_PATH_ARG}" >>  $GITHUB_ENV
